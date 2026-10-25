@@ -1,0 +1,19 @@
+2026/10/25 17:21:08 component=Client event=client_startup client=Carol server=127.0.0.1:50051
+2026/10/25 17:21:08 component=Client event=client_joined client=Carol
+2026/10/25 17:21:08 [t=6] Participant Carol joined Chit Chat at logical time 6
+2026/10/25 17:21:08 component=Client event=message_received client=Carol kind=JOIN time=6
+2026/10/25 17:21:08 [t=7] Carol: ciao
+2026/10/25 17:21:08 component=Client event=message_received client=Carol kind=CHAT time=7
+2026/10/25 17:21:09 [t=8] Bob: bob here
+2026/10/25 17:21:09 component=Client event=message_received client=Carol kind=CHAT time=8
+2026/10/25 17:21:10 [t=9] Alice: leaving for now
+2026/10/25 17:21:10 component=Client event=message_received client=Carol kind=CHAT time=9
+2026/10/25 17:21:10 [t=10] Carol: carol says hi
+2026/10/25 17:21:10 component=Client event=message_received client=Carol kind=CHAT time=10
+2026/10/25 17:21:10 [t=11] Participant Bob left Chit Chat at logical time 11
+2026/10/25 17:21:10 component=Client event=message_received client=Carol kind=LEAVE time=11
+2026/10/25 17:21:11 [t=12] Participant Alice left Chit Chat at logical time 12
+2026/10/25 17:21:11 component=Client event=message_received client=Carol kind=LEAVE time=12
+2026/10/25 17:21:11 [t=13] Carol: bye
+2026/10/25 17:21:11 component=Client event=message_received client=Carol kind=CHAT time=13
+2026/10/25 17:21:12 component=Client event=client_shutdown client=Carol

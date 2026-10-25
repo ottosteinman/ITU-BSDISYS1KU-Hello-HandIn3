@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Chit Chat — Report</title>
+<style>
+  @page { size: A4; margin: 18mm 16mm; }
+  body { font-family: "DejaVu Sans", Arial, sans-serif; font-size: 10.5pt; line-height: 1.45; color: #1a1a1a; }
+  h1 { font-size: 20pt; margin: 0 0 4pt 0; }
+  h2 { font-size: 14pt; margin: 18pt 0 6pt 0; border-bottom: 2px solid #1a5fb4; padding-bottom: 2pt; color: #1a5fb4; }
+  h3 { font-size: 11.5pt; margin: 12pt 0 4pt 0; }
+  code, pre { font-family: "DejaVu Sans Mono", monospace; }
+  code { background: #f0f4fa; padding: 0 3pt; border-radius: 2px; }
+  pre { background: #f6f8fb; border: 1px solid #dde4ee; border-radius: 4px; padding: 8pt 10pt; font-size: 8pt; line-height: 1.4; overflow-x: auto; white-space: pre-wrap; word-break: break-word; }
+  table { border-collapse: collapse; width: 100%; margin: 8pt 0; font-size: 9.5pt; }
+  th, td { border: 1px solid #c9d3e0; padding: 4pt 7pt; text-align: left; vertical-align: top; }
+  th { background: #eef2f8; }
+  .meta { color: #555; font-size: 10pt; margin-bottom: 10pt; }
+  .note { background: #f2f7ff; border-left: 3px solid #1a5fb4; padding: 6pt 10pt; margin: 8pt 0; font-size: 10pt; }
+  .svgwrap { text-align: center; margin: 10pt 0; }
+  .svgwrap svg { max-width: 100%; height: auto; }
+  ul { margin: 4pt 0 8pt 0; padding-left: 16pt; }
+  li { margin: 2pt 0; }
+</style>
+</head>
+<body>
+
+<h1>Chit Chat — a Distributed Chat Service in Go</h1>
+<div class="meta">
+  Course assignment: distributed systems — communication, coordination and ordering of events<br>
+  Language: Go 1.27 &nbsp;·&nbsp; RPC: gRPC + Protocol Buffers &nbsp;·&nbsp; Timestamps: Lamport logical clocks<br>
+  Repository: <code>~/Projects/chit-chat</code> (link to be inserted on LearnIT hand-in)
+</div>
+
+<h2>1. Streaming model — which direction?</h2>
+<p>We use <b>server-side streaming</b> for the <code>Join</code> RPC, and <b>unary</b> request/reply for
+<code>Publish</code> and <code>Leave</code>. We deliberately do <b>not</b> use client-side or bidirectional
+streaming, for three reasons:</p>
+<ul>
+  <li><b>Asymmetry of traffic.</b> Every client only ever <i>receives</i> a continuous flow of broadcasts; the
+  only things a client sends are discrete, infrequent events (a published message, a leave). A stream in the
+  client→service direction would carry one message and close, i.e. it is a unary call in all but name.</li>
+  <li><b>Server-side streaming is the natural fit for fan-out.</b> The service is the single origin of all
+  broadcasts (joins, leaves, chat). Opening one long-lived server→client stream per participant lets the
+  service push every event to every participant with a single, stable transport — no per-event RPCs to
+  establish, no polling.</li>
+  <li><b>Bidirectional streaming buys nothing here.</b> gRPC bidirectional streaming is useful when both
+  directions carry a continuous flow (e.g. live video, or an order book). Chit Chat has no such
+  client-side flow, so a single stream on the receive side plus unary calls on the send side is the
+  minimal design that satisfies S3–S6.</li>
+</ul>
+
+<h2>2. System architecture</h2>
+<p>The system is a <b>client–server</b> architecture (not peer-to-peer):</p>
+<ul>
+  <li><b>One service process</b> (the <i>Chit Chat service</i>) owns the participant registry, the Lamport
+  clock, and the broadcast fan-out. It listens on a TCP port and serves all gRPC traffic. Clients never
+  talk to each other — every message is relayed by the service.</li>
+  <li><b>Many client processes</b> (one per participant) join, publish and leave via gRPC. Each is an
+  independent OS process, satisfying S2 (≥ 3 concurrent clients in the demo).</li>
+  <li><b>Why not P2P?</b> A pure peer-to-peer design would require every client to maintain N−1
+  connections, implement its own fan-out and gossip its clock, which multiplies the ordering problem.
+  Centralising the clock and the fan-out in one service process gives a single, well-defined point where
+  Lamport timestamps are assigned, which is exactly what makes the logical-time ordering of S4–S6
+  provable. The cost — the service being a single point of failure — is accepted in this assignment's
+  scope (S1–S7 do not require fault tolerance of the service itself).</li>
+</ul>
+<p>Concurrency inside each process uses <b>goroutines and channels</b> as required: the service spawns one
+dedicated goroutine per client connection (its <code>Join</code> handler plus that connection's reader
+goroutine), and each participant owns a private <b>buffered channel</b> into which broadcasts are written
+with <b>non-blocking sends</b>. A slow or dead client therefore can never block delivery to the others,
+satisfying the "multiple concurrent clients without blocking message delivery" requirement.</p>
+
+<h2>3. RPC methods and message types</h2>
+<p>All definitions live in <code>grpc/chit_chat.proto</code>; the generated Go bindings are committed under
+<code>grpc/</code>. The service exposes exactly three methods:</p>
+
+<table>
+  <tr><th>Method</th><th>Type</th><th>Request</th><th>Response</th><th>Purpose</th></tr>
+  <tr>
+    <td><code>Join</code></td>
+    <td><b>server-side streaming</b></td>
+    <td><code>JoinRequest</code> { name }</td>
+    <td><code>stream BroadcastMessage</code></td>
+    <td>Register the participant; the stream then carries <i>every</i> subsequent broadcast (joins, leaves, chat), including the join event itself (S5).</td>
+  </tr>
+  <tr>
+    <td><code>Publish</code></td>
+    <td>unary</td>
+    <td><code>PublishRequest</code> { name, message ≤ 128 chars, lamport }</td>
+    <td><code>PublishResponse</code> { logical_time }</td>
+    <td>Publish one valid UTF-8 chat message; the service stamps and broadcasts it (S3, S4).</td>
+  </tr>
+  <tr>
+    <td><code>Leave</code></td>
+    <td>unary</td>
+    <td><code>LeaveRequest</code> { name, lamport }</td>
+    <td><code>LeaveResponse</code> { logical_time }</td>
+    <td>Orderly departure; the service broadcasts the leave event to all remaining participants (S6).</td>
+  </tr>
+</table>
+
+<p><b>Message types.</b> <code>BroadcastMessage</code> is the single type pushed on the Join stream and
+carries: <code>sender</code> (the participant the event is about), <code>content</code> (human-readable text,
+e.g. <i>"Participant X joined Chit Chat at logical time L"</i> or <i>"Alice: hello"</i>),
+<code>logical_time</code> (the Lamport timestamp), and <code>kind</code> (an enum
+<code>CHAT | JOIN | LEAVE</code>) so clients can render categories distinctly. <code>JoinRequest</code>,
+<code>PublishRequest</code>, <code>PublishResponse</code>, <code>LeaveRequest</code> and
+<code>LeaveResponse</code> are the unary envelopes; the two request types carry the sender's current Lamport
+clock so the service can compute causally consistent timestamps (section 4).</p>
+
+<h2>4. Lamport timestamp calculation</h2>
+<p>Timestamps are <b>Lamport logical timestamps</b>: every process keeps a counter, and for each event
+(locally generated or received) it updates <code>T = max(local, carried) + 1</code>. In Chit Chat the
+<b>service assigns every timestamp</b>, which is what makes the ordering total and verifiable:</p>
+<ul>
+  <li><b>Service side (server/main.go, <code>hub.tick</code>).</b> The service holds the single authoritative
+  clock. On every join, publish and leave it computes
+  <code>T = max(serviceClock, carried) + 1</code>, where <code>carried</code> is the client's clock value sent
+  in <code>PublishRequest.lamport</code> / <code>LeaveRequest.lamport</code>. The clock only ever increases, so
+  logical times are strictly ordered.</li>
+  <li><b>Client side (client/main.go).</b> Each client keeps its own Lamport clock and advances it on every
+  broadcast received and every message sent (<code>clock = max(clock, carried)</code>). It reports this clock
+  in every outgoing RPC. Because clients may publish in quick succession (their local ordering is
+  unobservable to the service), carrying the client's clock in lets the service fold the client's local
+  ordering into the global one, preserving causality across processes even though no shared physical clock
+  is used.</li>
+</ul>
+<div class="note"><b>Worked example from the demo run.</b> The service clock walks
+<code>0 → 1 → 3 → 4 → 5 → 6</code> as: Alice joins (t=1), Alice publishes (t=2), Bob joins carrying his
+clock (t=3), Alice publishes (t=4), Bob publishes carrying 4 (t=5), Bob leaves (t=6). Each value is
+<code>max(local, carried)+1</code>; the full capture is in the appendix and in <code>logs/</code>.</div>
+
+<h2>5. Sequence of RPC calls with Lamport timestamps</h2>
+<p>The figure below traces one concrete scenario — <b>Alice and Bob join, exchange two messages, Bob
+leaves</b> — showing every RPC, the direction of each broadcast, and the logical time assigned to each
+event. Arrows from the service (orange) are the broadcast fan-outs; blue arrows are the client→service
+RPCs.</p>
+<div class="svgwrap">
+__SVG__
+</div>
+<p>Every broadcast is delivered to <b>all active participants</b>, including the actor of the event (Alice
+receives her own join at t=1; Bob receives his own join at t=3), and the leave at t=6 goes only to the
+remaining participant (Alice) — exactly S5 and S6.</p>
+
+<h2>6. Logging</h2>
+<p>All logging uses the standard <code>log</code> package, with a small structured wrapper
+(<code>logger.Event</code>) that emits one line per event in the form:</p>
+<pre>2026-10-25 17:21:07 component=Server event=broadcast_join client=Alice time=1 delivered=1</pre>
+<p>Every line carries the four required fields — <b>timestamp</b> (from <code>log.LstdFlags</code>),
+<b>component</b> (<code>Server</code>/<code>Client</code>), <b>event type</b> and <b>identifiers</b>
+(participant name, logical time, delivery count). The events logged are: server startup/shutdown, client
+connection and disconnection, join/leave broadcast, chat broadcast, and per-recipient delivery
+(<code>message_delivered</code> on the server, <code>message_received</code> on the client — together
+proving S7, which requires both display <i>and</i> logging of every broadcast).</p>
+
+<h2>7. Requirements traceability</h2>
+<table>
+  <tr><th>Req</th><th>Where it is met</th><th>Evidence in <code>logs/</code></th></tr>
+  <tr><td>S1</td><td>gRPC for all communication; API in <code>grpc/chit_chat.proto</code></td><td>every event is an RPC</td></tr>
+  <tr><td>S2</td><td>1 service + 3 client processes in <code>test/run_demo.sh</code></td><td><code>client_connected client=Alice/Bob/Carol</code></td></tr>
+  <tr><td>S3</td><td><code>Publish</code> validates UTF-8 and ≤ 128 chars (server side)</td><td><code>broadcast_chat … chars=N</code></td></tr>
+  <tr><td>S4</td><td>every <code>broadcast_*</code> lists <code>delivered=N</code> = active clients, each with a <code>time=L</code></td><td>all <code>broadcast_*</code> lines</td></tr>
+  <tr><td>S5</td><td><code>Join</code> registers first, then broadcasts join to all incl. self</td><td><code>broadcast_join … delivered=1</code> (Alice)</td></tr>
+  <tr><td>S6</td><td><code>Leave</code> broadcasts to all remaining</td><td><code>broadcast_leave … delivered=2</code> (Bob)</td></tr>
+  <tr><td>S7</td><td>client displays <code>[t=N] …</code> and logs <code>message_received</code></td><td>each <code>client-*.log</code></td></tr>
+  <tr><td>Logging</td><td>startup/shutdown, connect/disconnect, broadcasts, delivery — with ts, component, event, id</td><td>full <code>server.log</code></td></tr>
+</table>
+
+<h2>8. How to run</h2>
+<pre>
+# terminal 1 — the service
+go run ./server                       # or: CHITCHAT_PORT=6000 go run ./server
+
+# terminals 2-4 — three concurrent clients
+go run ./client Alice
+go run ./client Bob localhost:50051
+go run ./client Carol
+
+# or the whole scripted 3-client scenario in one go:
+bash test/run_demo.sh                 # writes the evidence to logs/
+</pre>
+
+<h2>Appendix A — captured logs (evidence for S5–S7 and the logging spec)</h2>
+<p>Produced by <code>bash test/run_demo.sh</code> (server + 3 concurrent clients; Alice, Bob, Carol).</p>
+
+<h3>A.1 Server log — <code>logs/server.log</code></h3>
+<pre>__SERVERLOG__</pre>
+
+<h3>A.2 Client log (Alice) — <code>logs/client-Alice.log</code></h3>
+<pre>__ALICELOG__</pre>
+
+<h3>A.3 Client display (Alice) — <code>logs/client-Alice.out</code></h3>
+<pre>__ALICEOUT__</pre>
+
+<h3>A.4 Client logs (Bob &amp; Carol) — <code>logs/client-Bob.log</code>, <code>logs/client-Carol.log</code></h3>
+<pre>__BOBLOG__
+-----
+__CAROLLOG__</pre>
+
+</body>
+</html>

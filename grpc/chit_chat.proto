@@ -1,0 +1,88 @@
+// chit_chat.proto
+//
+// gRPC API definition for the Chit Chat distributed chat service.
+//
+// Design choice: the Join RPC uses SERVER-SIDE streaming. A participant
+// calls Join once and receives a long-lived stream over which the server
+// pushes every broadcast (join/leave notifications and chat messages)
+// tagged with a Lamport logical timestamp. Publishing and leaving are
+// plain unary RPCs. This matches the system's topology: the service
+// process is the single fan-out point, and each client only ever needs
+// to receive broadcasts, never to send a stream.
+
+syntax = "proto3";
+
+package chitchat;
+
+option go_package = "chitchat/grpc";
+
+// ChitChat is the single service exposed by the Chit Chat service process.
+service ChitChat {
+  // Join registers the participant and returns a stream of all
+  // subsequent broadcasts (including the join notification itself).
+  // The stream stays open until the participant leaves or disconnects.
+  rpc Join(JoinRequest) returns (stream BroadcastMessage);
+
+  // Publish sends one chat message to the service, which broadcasts it
+  // to all active participants. Unary request/reply.
+  rpc Publish(PublishRequest) returns (PublishResponse);
+
+  // Leave unregisters the participant; the service broadcasts the
+  // leave notification to all remaining participants.
+  rpc Leave(LeaveRequest) returns (LeaveResponse);
+}
+
+// BroadcastKind classifies what a broadcast message reports.
+enum BroadcastKind {
+  BROADCAST_KIND_UNSPECIFIED = 0;
+  CHAT = 1;  // a published chat message
+  JOIN = 2;  // a participant joined
+  LEAVE = 3; // a participant left
+}
+
+message JoinRequest {
+  // Chosen participant name (used as the client identity).
+  string name = 1;
+}
+
+message PublishRequest {
+  // Name of the publishing participant (must have joined).
+  string name = 1;
+  // The chat message: valid UTF-8, at most 128 characters.
+  string message = 2;
+  // The sender's current Lamport clock, so the service can compute a
+  // causal logical timestamp: T = max(T_service, lamport) + 1.
+  int64 lamport = 3;
+}
+
+message PublishResponse {
+  // The logical timestamp assigned to the broadcast.
+  int64 logical_time = 1;
+}
+
+message LeaveRequest {
+  string name = 1;
+  // The client's current Lamport clock, used in the timestamp
+  // computation (max with the server clock, + 1).
+  int64 lamport = 2;
+}
+
+message LeaveResponse {
+  // The logical timestamp assigned to the leave broadcast.
+  int64 logical_time = 1;
+}
+
+// BroadcastMessage is pushed on the Join stream to every active
+// participant whenever any event (chat/join/leave) happens.
+message BroadcastMessage {
+  // Name of the participant the broadcast is about (sender of a chat
+  // message, or the joining/leaving participant).
+  string sender = 1;
+  // Human-readable content, e.g. the chat text or
+  // "Participant X joined Chit Chat at logical time L".
+  string content = 2;
+  // Lamport logical timestamp assigned by the service.
+  int64 logical_time = 3;
+  // What kind of event this broadcast reports.
+  BroadcastKind kind = 4;
+}

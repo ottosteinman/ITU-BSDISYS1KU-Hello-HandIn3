@@ -1,0 +1,50 @@
+2026/10/25 17:21:07 component=Server event=server_startup port=50051
+2026/10/25 17:21:07 component=Server event=client_connected client=Alice
+2026/10/25 17:21:07 component=Server event=broadcast_join client=Alice time=1 delivered=1
+2026/10/25 17:21:07 component=Server event=broadcast_chat client=Alice time=2 chars=14 delivered=1
+2026/10/25 17:21:07 component=Server event=message_delivered client=Alice kind=JOIN time=1
+2026/10/25 17:21:07 component=Server event=message_delivered client=Alice kind=CHAT time=2
+2026/10/25 17:21:08 component=Server event=client_connected client=Bob
+2026/10/25 17:21:08 component=Server event=broadcast_join client=Bob time=3 delivered=2
+2026/10/25 17:21:08 component=Server event=message_delivered client=Alice kind=JOIN time=3
+2026/10/25 17:21:08 component=Server event=message_delivered client=Bob kind=JOIN time=3
+2026/10/25 17:21:08 component=Server event=broadcast_chat client=Bob time=4 chars=18 delivered=2
+2026/10/25 17:21:08 component=Server event=message_delivered client=Alice kind=CHAT time=4
+2026/10/25 17:21:08 component=Server event=message_delivered client=Bob kind=CHAT time=4
+2026/10/25 17:21:08 component=Server event=broadcast_chat client=Alice time=5 chars=13 delivered=2
+2026/10/25 17:21:08 component=Server event=message_delivered client=Alice kind=CHAT time=5
+2026/10/25 17:21:08 component=Server event=message_delivered client=Bob kind=CHAT time=5
+2026/10/25 17:21:08 component=Server event=client_connected client=Carol
+2026/10/25 17:21:08 component=Server event=broadcast_join client=Carol time=6 delivered=3
+2026/10/25 17:21:08 component=Server event=message_delivered client=Bob kind=JOIN time=6
+2026/10/25 17:21:08 component=Server event=message_delivered client=Alice kind=JOIN time=6
+2026/10/25 17:21:08 component=Server event=message_delivered client=Carol kind=JOIN time=6
+2026/10/25 17:21:08 component=Server event=broadcast_chat client=Carol time=7 chars=4 delivered=3
+2026/10/25 17:21:08 component=Server event=message_delivered client=Alice kind=CHAT time=7
+2026/10/25 17:21:08 component=Server event=message_delivered client=Carol kind=CHAT time=7
+2026/10/25 17:21:08 component=Server event=message_delivered client=Bob kind=CHAT time=7
+2026/10/25 17:21:09 component=Server event=broadcast_chat client=Bob time=8 chars=8 delivered=3
+2026/10/25 17:21:09 component=Server event=message_delivered client=Bob kind=CHAT time=8
+2026/10/25 17:21:09 component=Server event=message_delivered client=Alice kind=CHAT time=8
+2026/10/25 17:21:09 component=Server event=message_delivered client=Carol kind=CHAT time=8
+2026/10/25 17:21:10 component=Server event=broadcast_chat client=Alice time=9 chars=15 delivered=3
+2026/10/25 17:21:10 component=Server event=message_delivered client=Alice kind=CHAT time=9
+2026/10/25 17:21:10 component=Server event=message_delivered client=Bob kind=CHAT time=9
+2026/10/25 17:21:10 component=Server event=message_delivered client=Carol kind=CHAT time=9
+2026/10/25 17:21:10 component=Server event=broadcast_chat client=Carol time=10 chars=13 delivered=3
+2026/10/25 17:21:10 component=Server event=message_delivered client=Carol kind=CHAT time=10
+2026/10/25 17:21:10 component=Server event=message_delivered client=Alice kind=CHAT time=10
+2026/10/25 17:21:10 component=Server event=message_delivered client=Bob kind=CHAT time=10
+2026/10/25 17:21:10 component=Server event=client_disconnected client=Bob cause=leave
+2026/10/25 17:21:10 component=Server event=broadcast_leave client=Bob time=11 delivered=2
+2026/10/25 17:21:10 component=Server event=message_delivered client=Carol kind=LEAVE time=11
+2026/10/25 17:21:10 component=Server event=message_delivered client=Alice kind=LEAVE time=11
+2026/10/25 17:21:11 component=Server event=client_disconnected client=Alice cause=leave
+2026/10/25 17:21:11 component=Server event=broadcast_leave client=Alice time=12 delivered=1
+2026/10/25 17:21:11 component=Server event=message_delivered client=Carol kind=LEAVE time=12
+2026/10/25 17:21:11 component=Server event=broadcast_chat client=Carol time=13 chars=3 delivered=1
+2026/10/25 17:21:11 component=Server event=message_delivered client=Carol kind=CHAT time=13
+2026/10/25 17:21:12 component=Server event=client_disconnected client=Carol cause=leave
+2026/10/25 17:21:12 component=Server event=broadcast_leave client=Carol time=14 delivered=0
+2026/10/25 17:21:12 component=Server event=server_shutdown reason=signal signal=interrupt
+2026/10/25 17:21:12 component=Server event=server_shutdown_complete
