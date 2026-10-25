@@ -1,0 +1,59 @@
+package main
+
+import (
+	"context"
+	"fmt"
+	"log"
+
+	pb "chitchat/grpc"
+
+	"google.golang.org/grpc"
+)
+
+func main() {
+	// Connect to server
+	conn, err := grpc.Dial(
+		"localhost:5000",
+		grpc.WithInsecure(),
+	)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer conn.Close()
+
+	// Create gRPC client
+	client := pb.NewChitChatClient(conn)
+
+	// Ask user for name
+	var username string
+	fmt.Print("Enter your name: ")
+	fmt.Scanln(&username)
+
+	// Join chat
+	stream, err := client.Join(
+		context.Background(),
+		&pb.JoinRequest{
+			Name: username,
+		},
+	)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Start goroutine to listen for broadcasts
+	go func() {
+		for {
+			msg, err := stream.Recv()
+			if err != nil {
+				return
+			}
+
+			fmt.Printf(
+				"[%d] %s: %s\n",
+				msg.LogicalTime,
+				msg.Sender,
+				msg.Content,
+			)
+		}
+	}()
+}
