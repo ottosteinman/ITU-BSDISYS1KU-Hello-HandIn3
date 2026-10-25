@@ -1,25 +1,25 @@
-2026/10/25 17:21:07 component=Client event=client_startup client=Alice server=127.0.0.1:50051
-2026/10/25 17:21:07 component=Client event=client_joined client=Alice
-2026/10/25 17:21:07 [t=1] Participant Alice joined Chit Chat at logical time 1
-2026/10/25 17:21:07 component=Client event=message_received client=Alice kind=JOIN time=1
-2026/10/25 17:21:07 [t=2] Alice: hello everyone
-2026/10/25 17:21:07 component=Client event=message_received client=Alice kind=CHAT time=2
-2026/10/25 17:21:08 [t=3] Participant Bob joined Chit Chat at logical time 3
-2026/10/25 17:21:08 component=Client event=message_received client=Alice kind=JOIN time=3
-2026/10/25 17:21:08 [t=4] Bob: hi alice, hi carol
-2026/10/25 17:21:08 component=Client event=message_received client=Alice kind=CHAT time=4
-2026/10/25 17:21:08 [t=5] Alice: this is alice
-2026/10/25 17:21:08 component=Client event=message_received client=Alice kind=CHAT time=5
-2026/10/25 17:21:08 [t=6] Participant Carol joined Chit Chat at logical time 6
-2026/10/25 17:21:08 component=Client event=message_received client=Alice kind=JOIN time=6
-2026/10/25 17:21:08 [t=7] Carol: ciao
-2026/10/25 17:21:08 component=Client event=message_received client=Alice kind=CHAT time=7
-2026/10/25 17:21:09 [t=8] Bob: bob here
-2026/10/25 17:21:09 component=Client event=message_received client=Alice kind=CHAT time=8
-2026/10/25 17:21:10 [t=9] Alice: leaving for now
-2026/10/25 17:21:10 component=Client event=message_received client=Alice kind=CHAT time=9
-2026/10/25 17:21:10 [t=10] Carol: carol says hi
-2026/10/25 17:21:10 component=Client event=message_received client=Alice kind=CHAT time=10
-2026/10/25 17:21:10 [t=11] Participant Bob left Chit Chat at logical time 11
-2026/10/25 17:21:10 component=Client event=message_received client=Alice kind=LEAVE time=11
-2026/10/25 17:21:11 component=Client event=client_shutdown client=Alice
+2026/10/25 17:24:48 component=Client event=client_startup client=Alice server=127.0.0.1:50051
+2026/10/25 17:24:48 component=Client event=client_joined client=Alice
+2026/10/25 17:24:48 [t=1] Alice: hello everyone
+2026/10/25 17:24:48 component=Client event=message_received client=Alice kind=CHAT time=1
+2026/10/25 17:24:48 [t=2] Participant Alice joined Chit Chat at logical time 2
+2026/10/25 17:24:48 component=Client event=message_received client=Alice kind=JOIN time=2
+2026/10/25 17:24:49 [t=3] Participant Bob joined Chit Chat at logical time 3
+2026/10/25 17:24:49 component=Client event=message_received client=Alice kind=JOIN time=3
+2026/10/25 17:24:49 [t=4] Bob: hi alice, hi carol
+2026/10/25 17:24:49 component=Client event=message_received client=Alice kind=CHAT time=4
+2026/10/25 17:24:49 [t=5] Alice: this is alice
+2026/10/25 17:24:49 component=Client event=message_received client=Alice kind=CHAT time=5
+2026/10/25 17:24:49 [t=6] Participant Carol joined Chit Chat at logical time 6
+2026/10/25 17:24:49 component=Client event=message_received client=Alice kind=JOIN time=6
+2026/10/25 17:24:49 [t=7] Carol: ciao
+2026/10/25 17:24:49 component=Client event=message_received client=Alice kind=CHAT time=7
+2026/10/25 17:24:50 [t=8] Bob: bob here
+2026/10/25 17:24:50 component=Client event=message_received client=Alice kind=CHAT time=8
+2026/10/25 17:24:51 [t=9] Alice: leaving for now
+2026/10/25 17:24:51 component=Client event=message_received client=Alice kind=CHAT time=9
+2026/10/25 17:24:51 [t=10] Carol: carol says hi
+2026/10/25 17:24:51 component=Client event=message_received client=Alice kind=CHAT time=10
+2026/10/25 17:24:51 [t=11] Participant Bob left Chit Chat at logical time 11
+2026/10/25 17:24:51 component=Client event=message_received client=Alice kind=LEAVE time=11
+2026/10/25 17:24:52 component=Client event=client_shutdown client=Alice

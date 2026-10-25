@@ -14,7 +14,6 @@ chit-chat/
 ├── client/    # client process (one per participant)
 ├── grpc/      # .proto file + generated Go bindings
 ├── server/    # service process (the only server)
-├── test/      # run_demo.sh: scripted end-to-end demo (3 clients)
 ├── logs/      # captured run demonstrating the requirements (S5–S7)
 ├── go.mod / go.sum
 └── readme.md  # this file
@@ -76,18 +75,26 @@ You will see (on **every** client, including Alice's own):
 `leave` (or Ctrl-D) in each client, then Ctrl-C in the server terminal.
 The server shuts down gracefully and logs `server_shutdown`.
 
-## One-command demo (3 concurrent clients, scripted)
+## Running three concurrent clients (the S2 minimum)
 
-```bash
-bash test/run_demo.sh
+Open one terminal per client so all three are active at once, e.g. Alice,
+Bob and Carol. The captured run in `logs/` is the evidence for the hand-in:
+it shows three concurrent clients, at least one join and one leave,
+broadcast delivery to all active participants, and the full structured log
+trail. The same sequence can be reproduced by hand:
+
+```
+# 1) server in one terminal
+go run ./server
+
+# 2) then three concurrent clients in three more terminals
+go run ./client Alice
+go run ./client Bob localhost:50051
+go run ./client Carol
 ```
 
-This builds the binaries, starts the server and three concurrent clients
-(Alice, Bob, Carol), drives a scripted join / publish / leave sequence and
-writes the server + per-client logs to `logs/`. That captured run is the
-evidence for the hand-in: it shows three concurrent clients, at least one
-join and one leave, broadcast delivery to all active participants, and the
-full structured log trail. Re-run it any time to reproduce.
+Type a message in any client, or `leave` to exit — every broadcast (joins,
+leaves, chat) appears in each active client with its logical timestamp.
 
 ## Regenerating the gRPC bindings (only if you edit the .proto)
 
