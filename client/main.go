@@ -1,9 +1,11 @@
 package main
 
 import (
+	"bufio"
 	"context"
 	"fmt"
 	"log"
+	"os"
 
 	pb "chitchat/grpc"
 
@@ -59,4 +61,20 @@ func main() {
 			)
 		}
 	}()
+
+	// Send messages
+	scanner := bufio.NewScanner(os.Stdin)
+
+	for scanner.Scan() {
+
+		text := scanner.Text()
+
+		client.Publish(
+			context.Background(),
+			&pb.PublishRequest{
+				Sender:  username,
+				Content: text,
+			},
+		)
+	}
 }
