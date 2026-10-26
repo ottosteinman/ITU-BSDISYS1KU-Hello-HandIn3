@@ -56,7 +56,7 @@ func main() {
 				return
 			}
 
-			logger.Log("Client", "receive", msg.Sender)
+			logger.LogReceive(msg.Sender, msg.Content, msg.LogicalTime)
 
 			fmt.Printf(
 				"[%d] %s: %s\n",

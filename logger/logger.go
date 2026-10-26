@@ -22,3 +22,11 @@ func Log(component, action, username string) {
 		file.Println(line)
 	}
 }
+
+func LogReceive(sender, content string, logicalTime int64) {
+	line := fmt.Sprintf("component=Client action=receive client=%s content=%q logical_time=%d", sender, content, logicalTime)
+	log.Println(line)
+	if file != nil {
+		file.Println(line)
+	}
+}
