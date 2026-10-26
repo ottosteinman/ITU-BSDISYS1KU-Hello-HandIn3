@@ -74,6 +74,10 @@ func main() {
 
 		text := scanner.Text()
 
+		if text == "leave" {
+			break
+		}
+
 		logger.Log("Client", "send", username)
 
 		client.Publish(
@@ -84,4 +88,13 @@ func main() {
 			},
 		)
 	}
+
+	logger.Log("Client", "leave", username)
+
+	client.Leave(
+		context.Background(),
+		&pb.LeaveRequest{
+			Name: username,
+		},
+	)
 }

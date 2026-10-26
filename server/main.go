@@ -42,6 +42,25 @@ func (s *Server) Join(req *pb.JoinRequest, stream pb.ChitChat_JoinServer) error 
 
 	<-stream.Context().Done()
 
+	s.mu.Lock()
+	left := s.clients[req.Name] == stream
+	if left {
+		delete(s.clients, req.Name)
+		s.lamport++
+		msg = &pb.BroadcastMessage{
+			Sender:      req.Name,
+			Content:     req.Name + " left the chat",
+			LogicalTime: s.lamport,
+			Kind:        pb.BroadcastKind_LEAVE,
+		}
+	}
+	s.mu.Unlock()
+
+	if left {
+		logger.Log("Server", "disconnect", req.Name)
+		s.Broadcast(msg)
+	}
+
 	return nil
 }
 
