@@ -5,7 +5,10 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"os"
+	"os/signal"
 	"sync"
+	"syscall"
 
 	pb "chitchat/grpc"
 	"chitchat/logger"
@@ -141,6 +144,15 @@ func main() {
 	}
 
 	log.Println("Server started on :5000")
+
+	stop := make(chan os.Signal, 1)
+	signal.Notify(stop, os.Interrupt, syscall.SIGTERM)
+
+	go func() {
+		<-stop
+		logger.Log("Server", "shutdown", "")
+		s.GracefulStop()
+	}()
 
 	if err := s.Serve(lis); err != nil {
 		log.Fatal(err)
