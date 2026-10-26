@@ -1,0 +1,47 @@
+syntax = "proto3";
+
+package chitchat;
+
+option go_package = "./grpc";
+
+message JoinRequest {
+    string name = 1;
+}
+
+message LeaveRequest {
+    string name = 1;
+}
+
+message LeaveResponse {}
+
+message PublishRequest {
+    string sender = 1;
+    string content = 2;
+}
+
+message PublishResponse {}
+
+enum BroadcastKind {
+    BROADCAST_KIND_UNSPECIFIED = 0;
+    CHAT = 1;
+    JOIN = 2;
+    LEAVE = 3;
+}
+
+message BroadcastMessage {
+    string sender = 1;
+    string content = 2;
+    int64 logical_time = 3;
+    BroadcastKind kind = 4;
+}
+
+service ChitChat {
+    rpc Join(JoinRequest)
+        returns (stream BroadcastMessage);
+
+    rpc Publish(PublishRequest)
+        returns (PublishResponse);
+
+    rpc Leave(LeaveRequest)
+        returns (LeaveResponse);
+}
