@@ -46,7 +46,14 @@ func (s *Server) Join(req *pb.JoinRequest, stream pb.ChitChat_JoinServer) error 
 }
 
 func (s *Server) Broadcast(msg *pb.BroadcastMessage) {
+	s.mu.Lock()
+	clients := make([]pb.ChitChat_JoinServer, 0, len(s.clients))
 	for _, client := range s.clients {
+		clients = append(clients, client)
+	}
+	s.mu.Unlock()
+
+	for _, client := range clients {
 		client.Send(msg)
 	}
 }
