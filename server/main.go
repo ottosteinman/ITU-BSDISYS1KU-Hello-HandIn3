@@ -8,6 +8,7 @@ import (
 	"sync"
 
 	pb "chitchat/grpc"
+	"chitchat/logger"
 
 	"google.golang.org/grpc"
 )
@@ -21,6 +22,8 @@ type Server struct {
 }
 
 func (s *Server) Join(req *pb.JoinRequest, stream pb.ChitChat_JoinServer) error {
+
+	logger.Log("Server", "join", req.Name)
 
 	s.mu.Lock()
 	s.clients[req.Name] = stream
@@ -50,6 +53,8 @@ func (s *Server) Broadcast(msg *pb.BroadcastMessage) {
 
 func (s *Server) Publish(ctx context.Context, req *pb.PublishRequest) (*pb.PublishResponse, error) {
 
+	logger.Log("Server", "send", req.Sender)
+
 	if len(req.Content) > 128 {
 		return nil, fmt.Errorf("message too long")
 	}
@@ -73,6 +78,8 @@ func (s *Server) Publish(ctx context.Context, req *pb.PublishRequest) (*pb.Publi
 }
 
 func (s *Server) Leave(ctx context.Context, req *pb.LeaveRequest) (*pb.LeaveResponse, error) {
+
+	logger.Log("Server", "leave", req.Name)
 
 	s.mu.Lock()
 

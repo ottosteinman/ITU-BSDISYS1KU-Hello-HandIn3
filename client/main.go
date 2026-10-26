@@ -8,6 +8,7 @@ import (
 	"os"
 
 	pb "chitchat/grpc"
+	"chitchat/logger"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -45,6 +46,8 @@ func main() {
 		log.Fatal(err)
 	}
 
+	logger.Log("Client", "join", username)
+
 	// Start goroutine to listen for broadcasts
 	go func() {
 		for {
@@ -52,6 +55,8 @@ func main() {
 			if err != nil {
 				return
 			}
+
+			logger.Log("Client", "receive", msg.Sender)
 
 			fmt.Printf(
 				"[%d] %s: %s\n",
@@ -68,6 +73,8 @@ func main() {
 	for scanner.Scan() {
 
 		text := scanner.Text()
+
+		logger.Log("Client", "send", username)
 
 		client.Publish(
 			context.Background(),
