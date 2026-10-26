@@ -8,13 +8,16 @@ import (
 	pb "chitchat/grpc"
 
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 )
 
 func main() {
 	// Connect to server
-	conn, err := grpc.Dial(
+	conn, err := grpc.NewClient(
 		"localhost:5000",
-		grpc.WithInsecure(),
+		grpc.WithTransportCredentials(
+			insecure.NewCredentials(),
+		),
 	)
 	if err != nil {
 		log.Fatal(err)

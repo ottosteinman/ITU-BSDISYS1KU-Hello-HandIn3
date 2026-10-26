@@ -20,6 +20,24 @@ type Server struct {
 }
 
 func (s *Server) Join(req *pb.JoinRequest, stream pb.ChitChat_JoinServer) error {
+
+	s.mu.Lock()
+	s.clients[req.Name] = stream
+	s.lamport++
+
+	msg := &pb.BroadcastMessage{
+		Sender:      req.Name,
+		Content:     req.Name + " joined the chat",
+		LogicalTime: s.lamport,
+		Kind:        pb.BroadcastKind_JOIN,
+	}
+
+	s.mu.Unlock()
+
+	s.Broadcast(msg)
+
+	<-stream.Context().Done()
+
 	return nil
 }
 
@@ -30,6 +48,8 @@ func (s *Server) Broadcast(msg *pb.BroadcastMessage) {
 }
 
 func (s *Server) Publish(ctx context.Context, req *pb.PublishRequest) (*pb.PublishResponse, error) {
+	s.mu.Lock()
+
 	s.lamport++
 
 	msg := &pb.BroadcastMessage{
@@ -39,13 +59,33 @@ func (s *Server) Publish(ctx context.Context, req *pb.PublishRequest) (*pb.Publi
 		Kind:        pb.BroadcastKind_CHAT,
 	}
 
+	s.mu.Unlock()
+
 	s.Broadcast(msg)
 
 	return &pb.PublishResponse{}, nil
 }
 
 func (s *Server) Leave(ctx context.Context, req *pb.LeaveRequest) (*pb.LeaveResponse, error) {
-	return nil, nil
+
+	s.mu.Lock()
+
+	delete(s.clients, req.Name)
+
+	s.lamport++
+
+	msg := &pb.BroadcastMessage{
+		Sender:      req.Name,
+		Content:     req.Name + " left the chat",
+		LogicalTime: s.lamport,
+		Kind:        pb.BroadcastKind_LEAVE,
+	}
+
+	s.mu.Unlock()
+
+	s.Broadcast(msg)
+
+	return &pb.LeaveResponse{}, nil
 }
 
 func main() {
