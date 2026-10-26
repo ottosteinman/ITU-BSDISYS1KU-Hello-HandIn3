@@ -35,7 +35,7 @@ func (s *Server) Join(req *pb.JoinRequest, stream pb.ChitChat_JoinServer) error 
 
 	msg := &pb.BroadcastMessage{
 		Sender:      req.Name,
-		Content:     req.Name + " joined the chat",
+		Content:     fmt.Sprintf("Participant %s joined Chit Chat at logical time %d", req.Name, s.lamport),
 		LogicalTime: s.lamport,
 		Kind:        pb.BroadcastKind_JOIN,
 	}
@@ -53,7 +53,7 @@ func (s *Server) Join(req *pb.JoinRequest, stream pb.ChitChat_JoinServer) error 
 		s.lamport++
 		msg = &pb.BroadcastMessage{
 			Sender:      req.Name,
-			Content:     req.Name + " left the chat",
+			Content:     fmt.Sprintf("Participant %s left Chit Chat at logical time %d", req.Name, s.lamport),
 			LogicalTime: s.lamport,
 			Kind:        pb.BroadcastKind_LEAVE,
 		}
@@ -119,7 +119,7 @@ func (s *Server) Leave(ctx context.Context, req *pb.LeaveRequest) (*pb.LeaveResp
 
 	msg := &pb.BroadcastMessage{
 		Sender:      req.Name,
-		Content:     req.Name + " left the chat",
+		Content:     fmt.Sprintf("Participant %s left Chit Chat at logical time %d", req.Name, s.lamport),
 		LogicalTime: s.lamport,
 		Kind:        pb.BroadcastKind_LEAVE,
 	}
