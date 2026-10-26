@@ -9,6 +9,7 @@ import (
 	"os/signal"
 	"sync"
 	"syscall"
+	"unicode/utf8"
 
 	pb "chitchat/grpc"
 	"chitchat/logger"
@@ -84,7 +85,7 @@ func (s *Server) Publish(ctx context.Context, req *pb.PublishRequest) (*pb.Publi
 
 	logger.Log("Server", "send", req.Sender)
 
-	if len(req.Content) > 128 {
+	if utf8.RuneCountInString(req.Content) > 128 {
 		return nil, fmt.Errorf("message too long")
 	}
 
