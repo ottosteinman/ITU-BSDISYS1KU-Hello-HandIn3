@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net"
 	"sync"
@@ -48,6 +49,11 @@ func (s *Server) Broadcast(msg *pb.BroadcastMessage) {
 }
 
 func (s *Server) Publish(ctx context.Context, req *pb.PublishRequest) (*pb.PublishResponse, error) {
+
+	if len(req.Content) > 128 {
+		return nil, fmt.Errorf("message too long")
+	}
+
 	s.mu.Lock()
 
 	s.lamport++
