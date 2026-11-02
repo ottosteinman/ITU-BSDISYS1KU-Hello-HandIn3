@@ -1,8 +1,25 @@
-# ITU-BSDISYS1KU-Hello-HandIn3
-Github repository for Hand-In 3; gRPC, Physical Time &amp; Logical Time
+# Chit Chat
 
+Distributed chat service for Hand-In 3: one Go server process and multiple Go client processes, communicating over gRPC.
 
-This README must contain an instruction on how to run our program. 
+## Run
 
+Terminal 1 — start the server (listens on port 5000):
 
-thinking about adding a log folder for the logs the requirements state we must have, unsure if it would not comply with the requriements of "must have this folder structure" 
+```sh
+go run ./server
+```
+
+Terminal 2, 3 — start the clients:
+
+```sh
+go run ./client
+```
+
+Each client asks for a name, then every line you type is broadcast to all participants. Messages are limited to 128 characters. Type `leave` to exit.
+
+Stop the server with Ctrl+C.
+
+## Logs
+
+All events (join/leave, message delivery, startup/shutdown) are printed to stderr and appended to `chitchat.log` in the working directory.
