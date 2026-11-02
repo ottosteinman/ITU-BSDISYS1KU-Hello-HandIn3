@@ -23,3 +23,5 @@ Stop the server with Ctrl+C.
 ## Logs
 
 All events (join/leave, message delivery, startup/shutdown) are printed to stderr and appended to `chitchat.log` in the working directory.
+
+Sample logs from a full run (server + 3 concurrent clients: joins, chat, leaves, graceful shutdown) are in `logs/` — `chitchat.log` is the combined log, the other files are the per-process captures.
