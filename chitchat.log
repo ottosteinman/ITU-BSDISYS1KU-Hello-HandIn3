@@ -1,0 +1,87 @@
+2026/11/12 17:23:08 component=Server action=startup client=
+2026/11/12 17:24:10 component=Server action=join client=Daniel
+2026/11/12 17:24:10 component=Client action=join client=Daniel
+2026/11/12 17:24:10 component=Client action=receive client=Daniel content="Participant Daniel joined Chit Chat at logical time 1" logical_time=1
+2026/11/12 17:24:29 component=Client action=send client=Daniel
+2026/11/12 17:24:29 component=Server action=send client=Daniel
+2026/11/12 17:24:29 component=Client action=receive client=Daniel content="test" logical_time=2
+2026/11/12 17:24:32 component=Client action=send client=Daniel
+2026/11/12 17:24:32 component=Server action=send client=Daniel
+2026/11/12 17:24:32 component=Client action=receive client=Daniel content="test" logical_time=3
+2026/11/12 17:24:36 component=Client action=send client=Daniel
+2026/11/12 17:24:36 component=Server action=send client=Daniel
+2026/11/12 17:24:36 component=Client action=receive client=Daniel content="test 2?" logical_time=4
+2026/11/12 17:24:40 component=Client action=send client=Daniel
+2026/11/12 17:24:40 component=Server action=send client=Daniel
+2026/11/12 17:24:40 component=Client action=receive client=Daniel content="hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh" logical_time=5
+2026/11/12 17:24:48 component=Client action=send client=Daniel
+2026/11/12 17:24:48 component=Server action=send client=Daniel
+2026/11/12 17:24:58 component=Client action=send client=Daniel
+2026/11/12 17:24:58 component=Server action=send client=Daniel
+2026/11/12 17:25:05 component=Client action=send client=Daniel
+2026/11/12 17:25:05 component=Server action=send client=Daniel
+2026/11/12 17:28:55 component=Server action=join client=Tommy
+2026/11/12 17:28:55 component=Client action=receive client=Tommy content="Participant Tommy joined Chit Chat at logical time 6" logical_time=6
+2026/11/12 17:28:55 component=Client action=join client=Tommy
+2026/11/12 17:28:55 component=Client action=receive client=Tommy content="Participant Tommy joined Chit Chat at logical time 6" logical_time=6
+2026/11/12 17:28:58 component=Client action=send client=Tommy
+2026/11/12 17:28:58 component=Server action=send client=Tommy
+2026/11/12 17:28:58 component=Client action=receive client=Tommy content="test" logical_time=7
+2026/11/12 17:28:58 component=Client action=receive client=Tommy content="test" logical_time=7
+2026/11/12 17:29:18 component=Client action=send client=Daniel
+2026/11/12 17:29:18 component=Server action=send client=Daniel
+2026/11/12 17:29:18 component=Client action=receive client=Daniel content="Yo" logical_time=8
+2026/11/12 17:29:18 component=Client action=receive client=Daniel content="Yo" logical_time=8
+2026/11/12 17:29:26 component=Client action=send client=Daniel
+2026/11/12 17:29:26 component=Server action=send client=Daniel
+2026/11/12 17:29:26 component=Client action=receive client=Daniel content="Yo" logical_time=9
+2026/11/12 17:29:26 component=Client action=receive client=Daniel content="Yo" logical_time=9
+2026/11/12 17:29:37 component=Client action=send client=Tommy
+2026/11/12 17:29:37 component=Server action=send client=Tommy
+2026/11/12 17:29:37 component=Client action=receive client=Tommy content="Yo" logical_time=10
+2026/11/12 17:29:37 component=Client action=receive client=Tommy content="Yo" logical_time=10
+2026/11/12 17:29:43 component=Client action=send client=Tommy
+2026/11/12 17:29:43 component=Server action=send client=Tommy
+2026/11/12 17:29:43 component=Client action=receive client=Tommy content="Yo" logical_time=11
+2026/11/12 17:29:43 component=Client action=receive client=Tommy content="Yo" logical_time=11
+2026/11/12 17:29:48 component=Client action=send client=Daniel
+2026/11/12 17:29:48 component=Server action=send client=Daniel
+2026/11/12 17:29:48 component=Client action=receive client=Daniel content="Yo" logical_time=12
+2026/11/12 17:29:48 component=Client action=receive client=Daniel content="Yo" logical_time=12
+2026/11/12 17:30:19 component=Client action=send client=Daniel
+2026/11/12 17:30:19 component=Server action=send client=Daniel
+2026/11/12 17:30:24 component=Client action=send client=Daniel
+2026/11/12 17:30:24 component=Server action=send client=Daniel
+2026/11/12 17:32:18 component=Client action=leave client=Daniel
+2026/11/12 17:32:18 component=Server action=leave client=Daniel
+2026/11/12 17:32:18 component=Client action=receive client=Daniel content="Participant Daniel left Chit Chat at logical time 13" logical_time=13
+2026/11/12 17:32:27 component=Client action=leave client=Tommy
+2026/11/12 17:32:27 component=Server action=leave client=Tommy
+2026/11/12 17:32:36 component=Server action=shutdown client=
+2026/11/12 17:33:34 component=Server action=startup client=
+2026/11/12 17:33:42 component=Server action=join client=Daniel
+2026/11/12 17:33:42 component=Client action=join client=Daniel
+2026/11/12 17:33:42 component=Client action=receive client=Daniel content="Participant Daniel joined Chit Chat at logical time 1" logical_time=1
+2026/11/12 17:33:48 component=Client action=send client=Daniel
+2026/11/12 17:33:48 component=Server action=send client=Daniel
+2026/11/12 17:33:48 component=Client action=receive client=Daniel content="Test" logical_time=2
+2026/11/12 17:33:52 component=Client action=send client=Daniel
+2026/11/12 17:33:52 component=Server action=send client=Daniel
+2026/11/12 17:33:52 component=Client action=receive client=Daniel content="Test" logical_time=3
+2026/11/12 17:33:58 component=Server action=join client=Tommy
+2026/11/12 17:33:58 component=Client action=receive client=Tommy content="Participant Tommy joined Chit Chat at logical time 4" logical_time=4
+2026/11/12 17:33:58 component=Client action=join client=Tommy
+2026/11/12 17:33:58 component=Client action=receive client=Tommy content="Participant Tommy joined Chit Chat at logical time 4" logical_time=4
+2026/11/12 17:34:14 component=Client action=send client=Daniel
+2026/11/12 17:34:14 component=Server action=send client=Daniel
+2026/11/12 17:34:20 component=Client action=send client=Daniel
+2026/11/12 17:34:20 component=Server action=send client=Daniel
+2026/11/12 17:38:20 component=Client action=leave client=Tommy
+2026/11/12 17:38:20 component=Server action=disconnect client=Tommy
+2026/11/12 17:38:20 component=Client action=receive client=Tommy content="Participant Tommy left Chit Chat at logical time 5" logical_time=5
+2026/11/12 17:38:29 component=Client action=send client=Daniel
+2026/11/12 17:38:29 component=Server action=send client=Daniel
+2026/11/12 17:38:29 component=Client action=receive client=Daniel content="test" logical_time=6
+2026/11/12 17:38:33 component=Server action=shutdown client=
+2026/11/12 17:38:36 component=Client action=send client=Daniel
+2026/11/12 17:38:46 component=Server action=disconnect client=Daniel

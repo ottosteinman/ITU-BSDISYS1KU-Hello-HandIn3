@@ -23,6 +23,8 @@ type Server struct {
 	mu      sync.Mutex
 	clients map[string]pb.ChitChat_JoinServer
 	lamport int64
+
+	broadcast chan *pb.BroadcastMessage
 }
 
 func (s *Server) Join(req *pb.JoinRequest, stream pb.ChitChat_JoinServer) error {
@@ -42,7 +44,7 @@ func (s *Server) Join(req *pb.JoinRequest, stream pb.ChitChat_JoinServer) error 
 
 	s.mu.Unlock()
 
-	s.Broadcast(msg)
+	s.broadcast <- msg
 
 	<-stream.Context().Done()
 
@@ -62,7 +64,7 @@ func (s *Server) Join(req *pb.JoinRequest, stream pb.ChitChat_JoinServer) error 
 
 	if left {
 		logger.Log("Server", "disconnect", req.Name)
-		s.Broadcast(msg)
+		s.broadcast <- msg
 	}
 
 	return nil
@@ -102,9 +104,15 @@ func (s *Server) Publish(ctx context.Context, req *pb.PublishRequest) (*pb.Publi
 
 	s.mu.Unlock()
 
-	s.Broadcast(msg)
+	s.broadcast <- msg
 
 	return &pb.PublishResponse{}, nil
+}
+
+func (s *Server) broadcastLoop() {
+	for msg := range s.broadcast {
+		s.Broadcast(msg)
+	}
 }
 
 func (s *Server) Leave(ctx context.Context, req *pb.LeaveRequest) (*pb.LeaveResponse, error) {
@@ -126,7 +134,7 @@ func (s *Server) Leave(ctx context.Context, req *pb.LeaveRequest) (*pb.LeaveResp
 
 	s.mu.Unlock()
 
-	s.Broadcast(msg)
+	s.broadcast <- msg
 
 	return &pb.LeaveResponse{}, nil
 }
@@ -135,16 +143,21 @@ func main() {
 
 	s := grpc.NewServer()
 
-	pb.RegisterChitChatServer(s, &Server{
-		clients: make(map[string]pb.ChitChat_JoinServer),
-	})
+	server := &Server{
+		clients:   make(map[string]pb.ChitChat_JoinServer),
+		broadcast: make(chan *pb.BroadcastMessage, 100),
+	}
+
+	go server.broadcastLoop()
+
+	pb.RegisterChitChatServer(s, server)
 
 	lis, err := net.Listen("tcp", ":5000")
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	log.Println("Server started on :5000")
+	logger.Log("Server", "startup", "")
 
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, os.Interrupt, syscall.SIGTERM)
