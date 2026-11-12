@@ -6,7 +6,7 @@ import (
 	"os"
 )
 
-// file appends to chitchat.log in the current working directory.
+// file appends to log in the current working directory.
 var file *log.Logger
 
 func init() {
