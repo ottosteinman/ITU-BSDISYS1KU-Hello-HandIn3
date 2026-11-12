@@ -79,7 +79,9 @@ func (s *Server) Broadcast(msg *pb.BroadcastMessage) {
 	s.mu.Unlock()
 
 	for _, client := range clients {
-		client.Send(msg)
+		if err := client.Send(msg); err != nil {
+			logger.Log("Server", "send_failed", "")
+		}
 	}
 }
 
