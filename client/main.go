@@ -80,13 +80,18 @@ func main() {
 
 		logger.Log("Client", "send", username)
 
-		client.Publish(
+		_, err := client.Publish(
 			context.Background(),
 			&pb.PublishRequest{
 				Sender:  username,
 				Content: text,
 			},
 		)
+
+		if err != nil {
+			fmt.Println("Error:", err)
+			continue
+		}
 	}
 
 	logger.Log("Client", "leave", username)
